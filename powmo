@@ -1,0 +1,94 @@
+#!/bin/bash
+
+# =================================================================
+# Proyecto: PowMoCLI
+# Descripción: Gestión del modo de conservación en Lenovo laptops.
+# =================================================================
+
+readonly BAT_PATH="/sys/class/power_supply/BAT0/capacity"
+readonly CONS_MODE_PATH="/sys/bus/platform/drivers/ideapad_acpi/VPC2004:00/conservation_mode"
+readonly CONFIG_DIR="$HOME/.config/powmocli"
+readonly THRESHOLD_FILE="$CONFIG_DIR/threshold"
+
+check_compatibility() {
+    [[ -f "$CONS_MODE_PATH" ]] || { echo "Error: Hardware compatible no detectado."; exit 1; }
+}
+
+get_battery_level() {
+    cat "$BAT_PATH"
+}
+
+get_cons_status() {
+    cat "$CONS_MODE_PATH"
+}
+
+enable_conservation() {
+    local target_pct=$1
+    local current_pct=$(get_battery_level)
+
+    if [[ -n "$target_pct" ]]; then
+        mkdir -p "$CONFIG_DIR"
+        echo "$target_pct" > "$THRESHOLD_FILE"
+        
+        if (( current_pct >= target_pct )); then
+            echo 1 | sudo tee "$CONS_MODE_PATH" > /dev/null
+            echo "Modo conservación activado (Umbral: $target_pct%, Actual: $current_pct%)."
+        else
+            echo "Umbral configurado a $target_pct%. Se activará cuando la batería suba (Actual: $current_pct%)."
+        fi
+    else
+        echo 1 | sudo tee "$CONS_MODE_PATH" > /dev/null
+        rm -f "$THRESHOLD_FILE"
+        echo "Modo conservación activado inmediatamente."
+    fi
+}
+
+disable_conservation() {
+    echo 0 | sudo tee "$CONS_MODE_PATH" > /dev/null
+    rm -f "$THRESHOLD_FILE"
+    echo "Modo conservación desactivado."
+}
+
+show_status() {
+    local status=$(get_cons_status)
+    local label=$([[ "$status" == "1" ]] && echo "HABILITADO" || echo "DESHABILITADO")
+    
+    echo "-----------------------------------"
+    echo "Estado actual: $label"
+    [[ -f "$THRESHOLD_FILE" ]] && echo "Umbral de activación: $(cat "$THRESHOLD_FILE")%"
+    echo "Nivel de batería: $(get_battery_level)%"
+    echo "-----------------------------------"
+}
+
+
+
+show_help() {
+    echo "Uso: powmo [opciones]"
+    echo "  -e, --enable [n]   Habilitar modo (opcional: activar al n%)"
+    echo "  -d, --disable      Deshabilitar modo"
+    echo "  -s, --status       Ver estado actual"
+    exit 0
+}
+
+main() {
+    check_compatibility
+    
+    [[ $# -eq 0 ]] && show_help
+
+    case "$1" in
+        -e|--enable)
+            enable_conservation "$2"
+            ;;
+        -d|--disable)
+            disable_conservation
+            ;;
+        -s|--status)
+            show_status
+            ;;
+        *)
+            show_help
+            ;;
+    esac
+}
+
+main "$@"
