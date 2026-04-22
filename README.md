@@ -11,14 +11,20 @@ Herramienta de consola para gestionar el **Modo de Conservación** en laptops Le
 2. Dale permisos de ejecución:
    ```bash
    chmod +x powmo.sh
-(Opcional) Muévelo a tu bin para usarlo globalmente:Bashsudo mv powmo.sh /usr/local/bin/powmo
-Uso de Comandos 
+
+(Opcional) Muévelo a tu bin para usarlo globalmente: sudo mv powmo.sh /usr/local/bin/powmo
+
+## Uso de Comandos
+--- 
 Comando Corto	Comando Largo	Descripción
+---
 -e [num]	--enable [num]	Activa el modo. Si incluyes un número, se activará al llegar a ese %.
+---
 -d		--disable	Desactiva el modo por completo.
+---
 -s		--status	Muestra si está activo y el umbral configurado.
 
-Ejemplos
+## Ejemplos
 Activar ahora: powmo -e
 Activar cuando llegue al 60%: powmo --enable 60
 Consultar estado: powmo -s
