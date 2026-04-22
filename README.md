@@ -1,32 +1,63 @@
 # PowMoCLI 🔋
 
-Herramienta de consola para gestionar el **Modo de Conservación** en laptops Lenovo (Legion/Ideapad) bajo Linux.
+**PowMoCLI** es una interfaz de línea de comandos (CLI) desarrollada en Bash para gestionar de forma inteligente el "Modo de Conservación" en laptops Lenovo (series Legion e Ideapad). Esta herramienta permite extender la vida útil de la batería limitando su carga máxima a través del driver `ideapad_acpi`.
 
-## Requisitos
-- Kernel de Linux con el módulo `ideapad_acpi` cargado.
-- Privilegios de `sudo` para modificar estados del kernel.
-
-## Instalación rápida
-1. Clona o descarga el script `powmo.sh`.
-2. Dale permisos de ejecución:
-   ```bash
-   chmod +x powmo.sh
-
-(Opcional) Muévelo a tu bin para usarlo globalmente: sudo mv powmo.sh /usr/local/bin/powmo
-
-## Uso de Comandos
---- 
-Comando Corto	Comando Largo	Descripción
 ---
--e [num]	--enable [num]	Activa el modo. Si incluyes un número, se activará al llegar a ese %.
----
--d		--disable	Desactiva el modo por completo.
----
--s		--status	Muestra si está activo y el umbral configurado.
 
-## Ejemplos
-Activar ahora: powmo -e
-Activar cuando llegue al 60%: powmo --enable 60
-Consultar estado: powmo -s
+## 🚀 Características
 
-Persistencia: El umbral de porcentaje se guarda en ~/.config/powmocli/threshold.
+* **Activación Inteligente (RF01, RF02):** Permite activar el modo de conservación de forma inmediata o programarlo para que se active al alcanzar un porcentaje de carga específico.
+* **Control de Estado (RF03):** Desactivación sencilla para permitir cargas completas al 100%.
+* **Monitoreo (RF04, RF05):** Visualización clara del estado del driver, nivel de batería actual y umbrales configurados.
+* **Sintaxis Profesional (RNF01, RNF02):** Soporte para argumentos largos (`--enable`) y cortos (`-e`).
+
+---
+
+## 🛠️ Requisitos del Sistema
+
+1.  **Hardware:** Laptop Lenovo compatible con el driver `ideapad_acpi`.
+2.  **Software:** Kernel Linux con soporte para `/sys/bus/platform/drivers/ideapad_acpi`.
+3.  **Privilegios:** Acceso a `sudo` (necesario para escribir en archivos de sistema del kernel).
+
+---
+
+## 📦 Instalación
+
+1.  **Preparar el archivo:**
+    ```bash
+    chmod +x powmo.sh
+    ```
+
+2.  **Instalar en el sistema (opcional):**
+    ```bash
+    sudo cp powmo.sh /usr/local/bin/powmo
+    ```
+
+---
+
+## 🕹️ Guía de Uso
+
+La herramienta sigue el estándar POSIX para argumentos.
+
+### Comandos Disponibles
+
+| Opción Corta | Opción Larga | Argumento | Descripción |
+| :--- | :--- | :--- | :--- |
+| `-e` | `--enable` | `[porcentaje]` | Activa el modo. Si se incluye un %, espera a que la batería llegue a ese nivel. |
+| `-d` | `--disable` | (ninguno) | Desactiva el modo de conservación. |
+| `-s` | `--status` | (ninguno) | Muestra el reporte de estado actual. |
+
+### Ejemplos Prácticos
+
+* **Activar inmediatamente:**
+    ```bash
+    powmo --enable
+    ```
+* **Activar automáticamente al llegar al 80%:**
+    ```bash
+    powmo -e 80
+    ```
+* **Consultar configuración actual:**
+    ```bash
+    powmo -s
+    ```
